@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>荒野乱斗背景生成器</title>
+  <style>
+    body {
+      background-color: #2b2d31;
+      max-width: 80%;
+      margin: 0 auto;
+      width: 800px;
+    }
+
+    #canvasWrapper {
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%;
+      /* 根据canvas宽高比（1080/1920 = 0.5625，转换为百分比就是56.25%）设置padding-bottom，用于等比缩放 */
+      position: relative;
+    }
+
+    canvas {
+      border: 1px solid #3c3d44;
+      background-color: #3c3d44;
+      border-radius: 0.5em;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    label {
+      font-weight: bold;
+      font-family: sans-serif;
+      font-size: 1.4em;
+      color: #e0e0e0;
+      margin-top: 2em;
+    }
+
+    #colorPreview {
+      margin-bottom: -10px;
+      width: 4.5em;
+      height: 2em;
+      border: 1px solid gray;
+      border-radius: 5px;
+    }
+
+    div {
+      padding: 0.5em 0;
+    }
+
+    p {
+      font-size: 14px;
+      color: #e0e0e0;
+      margin: 3px 0;
+    }
+
+    select {
+      border: 1px solid transparent;
+      padding: 8px 8px 8px 12px;
+      cursor: pointer;
+      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      border-radius: 4px;
+      background-color: #1e1f22;
+      border-color: #1e1f22;
+      color: #e0e0e0;
+      margin: 0.8em 0;
+    }
+
+    input[type="range"] {
+      appearance: none;
+      height: 8px;
+      border-radius: 10em;
+      background-color: #797979;
+      cursor: pointer;
+    }
+
+    button {
+      background-color: #2071ff;
+      border: 2px solid black;
+      border-radius: 4px;
+      padding: 8px 2em;
+      box-shadow: inset 0 -4px 0 rgb(0 0 0 / 15%), inset 0 4px 0 rgb(255 255 255 / 5%);
+      font-size: 18px;
+      line-height: 28px;
+      pointer-events: all;
+      cursor: pointer;
+      color: #e0e0e0;
+      font-weight: bold;
+      text-shadow: -1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, 1px 1px 0px #000, -1px 0px 0px #000, 0px -1px 0px #000, 1px 0px 0px #000, 0px 1px 0px #000, 0px 3px 0px #000;
+      display: block;
+      margin-bottom: 0.5em;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="background-color: #313338;padding: 1em;height: 100%;">
+    <div id="canvasWrapper">
+      <canvas id="myCanvas" width="1920" height="1080"></canvas>
+    </div>
+    <div style="display: flex;justify-content: space-between;">
+      <div id="settings">
+        <div style="margin-top: 0.6em; margin-left:10px;">
+          <!-- 用于选择预设渐变色的下拉列表 -->
+          <label for="presetColors">渐变色预设</label>
+          <p>这决定了背景颜色的样子，下方会提供一个预览。</p>
+          <select id="presetColors">
+            <option value="#43e9ff, #1079e4, #0039a7">默认蓝色/超稀有</option>
+            <option value="#cef887, #6ce34e, #09942a">绿色/稀有/足球</option>
+            <option value="#98da32, #144520, #011a19">深绿色/银河狂徒</option>
+            <option value="#f7aeff, #c454f3, #600eb8">紫色/史诗/万圣节</option>
+            <option value="#ffe6a1, #f0535f, #97154c">红色/神话/新春</option>
+            <option value="#fffb7d, #ffd144, #fa792c">橙色/黄金周</option>
+            <option value="#a1fef3, #0dc6ee, #0268dc">淡蓝色/初始英雄</option>
+            <option value="#f9ddff, #7949e8, #230858">深紫色/10周年</option>
+            <option value="#ffe2c6, #ffc7b5, #d83f7d">粉红色/塔拉巴扎</option>
+            <option value="#85fd8b, #43eb9e, #00b6cb">蓝绿色/恐龙乐园</option>
+            <option value="#fffdea, #fcd1e3, #802ed6">淡紫色/星妙乐园</option>
+            <option value="#fdb3e0, #f283d4, #d335bf">粉色</option>
+            <option value="#fdde7e, #f74f7c, #720c85">红紫色</option>
+            <option value="#998588, #65506d, #1b1517">黑紫色</option>
+            <option value="#f2ffff, #c8e6eb, #7593ba">银白色/铂银</option>
+            <option value="#fdc417, #fda70e, #fe8800">金色/辉金</option>
+            <option value="#fcef19, #fdf019, #ffbb11">黄色/传奇</option>
+            <option value="#70eab6, #3f7e84, #292c61">深海蓝</option>
+            <option value="#fb9b1a, #802105, #471009">西部邪恶橙</option>
+            <option value="#876af7, #4014a9, #260758">机甲深紫色</option>
+            <option value="#b116ec, #ff0021, #fff11e">流彩</option>
+            <option value="#e693fe, #6a10e6, #221080">蓝紫色</option>
+            <option value="#ff5839, #bc2c52, #281c70">红色/动作巨星</option>
+            <option value="#ff5b3c, #941a2e, #2e0010">红色/面具</option>
+            <option value="#53524e, #121213, #070608">黑色/许可证</option>
+            <option value="#f8f095, #155861, #0e283f">丛林绿</option>
+            <option value="#fcb3ff, #f800ff, #c62ac8">极限充能</option>
+          </select>
+          <div id="colorPreview"></div>
+        </div>
+        <div style="margin-top: 0.6em; margin-left:10px;">
+          <label for="imagePathDropdown">选择图案</label>
+          <p>图案会重复错落排布，整体顺时针倾斜10°。</p>
+          <select id="imagePathDropdown">
+            <option value="images/angel.png">天使战恶魔-天使</option>
+            <option value="images/demon.png">天使战恶魔-恶魔</option>
+            <option value="images/angelo.png">安吉洛</option>
+            <option value="images/babyShark.png">鲨鱼宝宝</option>
+            <option value="images/buzzLightyear.png">巴斯光年</option>
+            <option value="images/draco.png">德拉科</option>
+            <option value="images/meeple.png">谜宝</option>
+            <option value="images/melodie.png">麦乐迪</option>
+            <option value="images/starrForce.png">星妙战队</option>
+            <option value="images/starrToon2.png">卡通工作室2</option>
+            <option value="images/ollie.png">奥利</option>
+            <option value="images/goodRandom.png">野排大神</option>
+            <option value="images/castle.png">城堡</option>
+            <option value="images/academy.png">乱斗学院</option>
+            <option value="images/hanbokMandy.png">韩服曼迪</option>
+            <option value="images/westBrawl.png">劫难战团</option>
+            <option value="images/ghost.png">万圣节/幽灵</option>
+            <option value="images/candy.png">糖果</option>
+            <option value="images/starrPark.png">星妙乐园</option>
+            <option value="images/actionHero.png">动作巨星</option>
+            <option value="images/brawlywood.png">星妙好莱坞</option>
+            <option value="images/darkXmas.png">暗黑圣诞节</option>
+            <option value="images/rabbitArcade.png">电玩兔兔</option>
+            <option value="images/heartLock.png">心锁</option>
+            <option value="images/mask.png">面具</option>
+            <option value="images/lantern.png">神灯</option>
+            <option value="images/coconutTree.png">椰子树</option>
+            <option value="images/eveBidome.png">生态馆</option>
+            <option value="images/enchantedForest.png">魔法森林</option>
+            <option value="images/cursedPirate.png">秘咒海员</option>
+            <option value="images/starrMeal.png">星妙大餐</option>
+            <option value="images/giftShop.png">礼品店</option>
+            <option value="images/trophy.png">奖杯</option>
+            <option value="images/max.png">麦克斯</option>
+            <option value="images/royale.png">皇室战争</option>
+            <option value="images/clash.png">部落冲突</option>
+            <option value="images/carnival.png">狂欢节</option>
+          </select>
+
+          <label for="imageOpacitySlider">图案不透明度</label>
+          <p>默认值为0.1，遇到较深的背景一般应降低不透明度。</p>
+          <div>
+            <input type="range" id="imageOpacitySlider" min="0" max="0.3" step="0.01" value="0.1">
+            <span id="imageOpacityValue" style="color:#e0e0e0;">0.1</span>
+          </div>
+        </div>
+      </div>
+      <div id="buttons" style="margin-top: 0.6em; text-align: right;">
+        <button onclick="generateBackground()">生成背景</button>
+        <button onclick="downloadImage()">下载图片</button>
+      </div>
+    </div>
+    <div style="margin-top: 4em; color:rgb(95 95 95); font-size: 0.5em; text-align: center;">By OrangePig</div>
+  </div>
+</body>
+
+<script>
+  // 获取canvas元素和相关输入框元素
+  const canvas = document.getElementById('myCanvas');
+  const ctx = canvas.getContext('2d');
+  const presetColorsSelect = document.getElementById('presetColors');
+  const imageOpacitySlider = document.getElementById('imageOpacitySlider');
+  const imageOpacityValue = document.getElementById('imageOpacityValue');
+  const imagePathDropdown = document.getElementById('imagePathDropdown');
+  const colorPreviewDiv = document.getElementById('colorPreview');
+
+  // 监听预设渐变色下拉列表的change事件，当选择改变时更新小色块预览
+  presetColorsSelect.addEventListener('change', function () {
+    const selectedValue = presetColorsSelect.value;
+    const colors = selectedValue.split(',');
+    const gradientColor1 = colors[0].trim() || 'white';
+    const gradientColor2 = colors[1].trim() || 'gray';
+    const gradientColor3 = colors[2].trim() || 'black';
+
+    // 使用CSS的linear-gradient属性设置小色块的背景样式，实现渐变颜色预览
+    colorPreviewDiv.style.background = `radial-gradient(circle, ${gradientColor1}, ${gradientColor2}, ${gradientColor3})`;
+  });
+
+  // 监听图片不透明度滑块的input事件，实时更新显示的不透明度值
+  imageOpacitySlider.addEventListener('input', function () {
+    const opacity = this.value;
+    imageOpacityValue.textContent = opacity;
+  });
+
+  function generateBackground() {
+    canvas.width = 1920;
+    canvas.height = 1080;
+
+    const gradientCenterX = 0.5;
+    const gradientCenterY = 0.5;
+    const gradientRadius = 0.5;
+    const imageRepeatWidth = 100;
+    const imageOpacity = parseFloat(imageOpacitySlider.value);
+    // 获取选择的图片路径
+    const imageUrl = imagePathDropdown.value;
+
+    // 获取当前选中的预设渐变色选项值，并解析出颜色数组
+    const selectedValue = presetColorsSelect.value;
+    const colors = selectedValue.split(',');
+    // 获取输入的三个渐变颜色值
+    const gradientColor1 = colors[0].trim() || 'white';
+    const gradientColor2 = colors[1].trim() || 'gray';
+    const gradientColor3 = colors[2].trim() || 'black';
+
+    // 创建径向渐变并绘制，设置三个颜色的色标位置
+    const gradient = ctx.createRadialGradient(canvas.width * gradientCenterX, canvas.height * gradientCenterY, 0, canvas.width * gradientCenterX, canvas.height * gradientCenterY, canvas.width * gradientRadius);
+    gradient.addColorStop(0, gradientColor1);
+    gradient.addColorStop(0.5, gradientColor2);
+    gradient.addColorStop(1, gradientColor3);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 保存当前绘图上下文状态，用于后续恢复，避免影响渐变背景绘制
+    ctx.save();
+    
+    ctx.translate(-100, -350);
+    ctx.rotate((10 * Math.PI) / 180);
+
+    // 创建图片对象并加载，加载完成后重复绘制图片
+    const img = new Image();
+    img.onload = function () {
+      ctx.save();
+      ctx.globalAlpha = imageOpacity;
+
+      // 计算等比缩放后的图片尺寸
+      const originalWidth = img.width;
+      const originalHeight = img.height;
+      const targetWidth = imageRepeatWidth;
+      const targetHeight = (originalHeight / originalWidth) * targetWidth;
+
+      const pattern = ctx.createPattern(img, 'repeat');
+
+      // 按照等比缩放后的尺寸绘制图片，并实现偶数行往右平移宽度的50%形成交错效果
+      const repeatWidth = targetWidth;
+      for (let y = 0; y < canvas.height; y += targetHeight) {
+        for (let x = 0; x < canvas.width; x += repeatWidth) {
+          const offsetX = (y / targetHeight % 2 === 0) ? 0 : repeatWidth / 2;
+          ctx.drawImage(img, x + offsetX, y, targetWidth, targetHeight);
+        }
+      }
+    };
+    img.src = imageUrl;
+    ctx.scale(2, 2);
+  }
+
+  // 下载图片的函数，将canvas内容转换为图片数据并触发下载
+  function downloadImage() {
+    const link = document.createElement('a');
+    link.download = 'pattern_background.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  }
+</script>
+
+</html>
